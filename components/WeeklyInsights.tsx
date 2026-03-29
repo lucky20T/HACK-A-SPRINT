@@ -16,37 +16,65 @@ import { generateWeeklyInsights, WeeklyInsight, InsightSeverity } from '@/lib/in
 import type { Breakpoint } from '@/lib/useBreakpoint'
 import { HabitIcon } from '@/lib/habitIcons'
 import { BarChart3, Flame, Star, TrendingUp, AlertTriangle, ArrowUp, CheckCircle } from 'lucide-react'
+import ThemeToggle from './ThemeToggle'
 import WeeklyChart from './WeeklyChart'
 import StreakCalendar from './StreakCalendar'
+import { useTheme } from '@/lib/ThemeContext'
 
 interface Props {
   breakpoint: Breakpoint
 }
 
 /* ─── Severity visual config ─────────────────────────────────────────── */
-const SEVERITY_CONFIG: Record<
+type SeverityConfig = Record<
   InsightSeverity,
   { label: string; bg: string; border: string; accent: string; Icon: React.ComponentType<{ size?: number; color?: string }> }
-> = {
+>
+
+const SEVERITY_CONFIG_DARK: SeverityConfig = {
   critical: {
     label: 'Needs Attention',
-    bg: 'linear-gradient(135deg, rgba(217,95,95,0.10) 0%, rgba(23,23,23,0.95) 100%)',
+    bg: 'linear-gradient(135deg, rgba(217,95,95,0.12) 0%, var(--card-bg) 100%)',
     border: 'rgba(217,95,95,0.30)',
-    accent: '#D95F5F',
+    accent: 'var(--error)',
     Icon: AlertTriangle,
   },
   low: {
     label: 'Room to Improve',
-    bg: 'linear-gradient(135deg, rgba(255,154,31,0.10) 0%, rgba(23,23,23,0.95) 100%)',
+    bg: 'linear-gradient(135deg, rgba(255,154,31,0.12) 0%, var(--card-bg) 100%)',
     border: 'rgba(255,154,31,0.30)',
-    accent: '#FF9A1F',
+    accent: 'var(--orange)',
     Icon: ArrowUp,
   },
   medium: {
     label: 'Almost There',
-    bg: 'linear-gradient(135deg, rgba(228,240,90,0.08) 0%, rgba(23,23,23,0.95) 100%)',
+    bg: 'linear-gradient(135deg, rgba(228,240,90,0.10) 0%, var(--card-bg) 100%)',
     border: 'rgba(228,240,90,0.25)',
-    accent: '#E4F05A',
+    accent: 'var(--neon-lime)',
+    Icon: CheckCircle,
+  },
+}
+
+const SEVERITY_CONFIG_LIGHT: SeverityConfig = {
+  critical: {
+    label: 'Needs Attention',
+    bg: 'linear-gradient(135deg, rgba(255,107,107,0.08) 0%, rgba(255,255,255,0.95) 100%)',
+    border: 'rgba(255,107,107,0.30)',
+    accent: '#FF6B6B',
+    Icon: AlertTriangle,
+  },
+  low: {
+    label: 'Room to Improve',
+    bg: 'linear-gradient(135deg, rgba(255,155,74,0.09) 0%, rgba(255,255,255,0.95) 100%)',
+    border: 'rgba(255,155,74,0.35)',
+    accent: '#FF9B4A',
+    Icon: ArrowUp,
+  },
+  medium: {
+    label: 'Almost There',
+    bg: 'linear-gradient(135deg, rgba(108,124,255,0.08) 0%, rgba(255,255,255,0.95) 100%)',
+    border: 'rgba(108,124,255,0.28)',
+    accent: '#6C7CFF',
     Icon: CheckCircle,
   },
 }
@@ -54,7 +82,9 @@ const SEVERITY_CONFIG: Record<
 /* ─── Single insight card ─────────────────────────────────────────────── */
 function InsightCard({ insight, index }: { insight: WeeklyInsight; index: number }) {
   const habit = HABIT_DEFINITIONS.find((h) => h.id === insight.habitId)!
-  const cfg = SEVERITY_CONFIG[insight.severity]
+  const { theme } = useTheme()
+  const isLight = theme === 'light'
+  const cfg = (isLight ? SEVERITY_CONFIG_LIGHT : SEVERITY_CONFIG_DARK)[insight.severity]
   const SeverityIcon = cfg.Icon
 
   return (
@@ -68,7 +98,7 @@ function InsightCard({ insight, index }: { insight: WeeklyInsight; index: number
         background: cfg.bg,
         backdropFilter: 'blur(20px)',
         border: `1px solid ${cfg.border}`,
-        boxShadow: `0 0 24px ${cfg.accent}11, 0 4px 24px rgba(0,0,0,0.3)`,
+        boxShadow: `0 0 24px ${cfg.accent}22, var(--card-shadow)`,
       }}
     >
       {/* Header */}
@@ -124,6 +154,8 @@ export default function WeeklyInsights({ breakpoint }: Props) {
   )
   const todayStr = getTodayString()
   const isDesktop = breakpoint === 'desktop'
+  const { theme } = useTheme()
+  const isLight = theme === 'light'
 
   useEffect(() => {
     const t = getTargets()
@@ -151,9 +183,9 @@ export default function WeeklyInsights({ breakpoint }: Props) {
   })()
 
   const statsItems = [
-    { label: 'Avg Score', value: avgScore, Icon: TrendingUp, color: '#E4F05A' },
-    { label: 'Best Day', value: bestScore, Icon: Star, color: '#7ED957' },
-    { label: 'Day Streak', value: streak, Icon: Flame, color: '#FF9A1F' },
+    { label: 'Avg Score', value: avgScore, Icon: TrendingUp, color: isLight ? '#6C7CFF' : '#E4F05A' },
+    { label: 'Best Day', value: bestScore, Icon: Star, color: isLight ? '#58D68D' : '#7ED957' },
+    { label: 'Day Streak', value: streak, Icon: Flame, color: isLight ? '#FF9B4A' : '#FF9A1F' },
   ]
 
   /* ── Insight panel (shared between desktop right-col and mobile stacked) */
@@ -179,17 +211,26 @@ export default function WeeklyInsights({ breakpoint }: Props) {
 
   return (
     <div style={{ paddingBottom: isDesktop ? 0 : 20 }}>
-      {/* Header */}
+      {/* Header row */}
       <motion.div
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-        style={{ marginBottom: isDesktop ? 28 : 20 }}
+        style={{
+          marginBottom: isDesktop ? 28 : 20,
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          gap: 12,
+        }}
       >
-        <p style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 500 }}>This Week</p>
-        <h1 style={{ fontSize: isDesktop ? 28 : 22, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.03em', marginTop: 2, display: 'flex', alignItems: 'center', gap: 10 }}>
-          Weekly Insights <BarChart3 size={isDesktop ? 26 : 22} color="#E4F05A" />
-        </h1>
+        <div>
+          <p style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 500 }}>This Week</p>
+          <h1 style={{ fontSize: isDesktop ? 28 : 22, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.03em', marginTop: 2, display: 'flex', alignItems: 'center', gap: 10 }}>
+            Weekly Insights <BarChart3 size={isDesktop ? 26 : 22} color="#E4F05A" />
+          </h1>
+        </div>
+        <ThemeToggle />
       </motion.div>
 
       {/* Stat cards — always 3 col */}
@@ -202,9 +243,9 @@ export default function WeeklyInsights({ breakpoint }: Props) {
         {statsItems.map((stat, i) => (
           <div key={stat.label} style={{
             padding: isDesktop ? '20px 16px' : '14px 10px',
-            borderRadius: 18, background: 'rgba(23,23,23,0.85)', backdropFilter: 'blur(20px)',
-            border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+            borderRadius: 18, background: 'var(--card-bg)', backdropFilter: 'blur(20px)',
+            border: '1px solid var(--card-border)', textAlign: 'center',
+            boxShadow: 'var(--card-shadow)',
           }}>
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 6 }}>
               <stat.Icon size={16} color={stat.color} />
@@ -231,7 +272,7 @@ export default function WeeklyInsights({ breakpoint }: Props) {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            style={{ padding: '22px', borderRadius: 20, background: 'rgba(23,23,23,0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.06)' }}
+            style={{ padding: '22px', borderRadius: 20, background: 'var(--card-bg)', backdropFilter: 'blur(20px)', border: '1px solid var(--card-border)' }}
           >
             <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.08em', marginBottom: 14, textTransform: 'uppercase' }}>Score Trend</p>
             <WeeklyChart data={weekData} />
@@ -241,7 +282,7 @@ export default function WeeklyInsights({ breakpoint }: Props) {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.22, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            style={{ padding: '22px', borderRadius: 20, background: 'rgba(23,23,23,0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.06)' }}
+            style={{ padding: '22px', borderRadius: 20, background: 'var(--card-bg)', backdropFilter: 'blur(20px)', border: '1px solid var(--card-border)' }}
           >
             <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.08em', marginBottom: 14, textTransform: 'uppercase' }}>Week at a Glance</p>
             <StreakCalendar weekHistory={weekData} todayStr={todayStr} />
@@ -256,7 +297,7 @@ export default function WeeklyInsights({ breakpoint }: Props) {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            style={{ padding: '18px', borderRadius: 20, background: 'rgba(23,23,23,0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.06)' }}
+            style={{ padding: '18px', borderRadius: 20, background: 'var(--card-bg)', backdropFilter: 'blur(20px)', border: '1px solid var(--card-border)' }}
           >
             <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.08em', marginBottom: 14, textTransform: 'uppercase' }}>Score Trend</p>
             <WeeklyChart data={weekData} />
@@ -266,7 +307,7 @@ export default function WeeklyInsights({ breakpoint }: Props) {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.22, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            style={{ padding: '18px', borderRadius: 20, background: 'rgba(23,23,23,0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.06)' }}
+            style={{ padding: '18px', borderRadius: 20, background: 'var(--card-bg)', backdropFilter: 'blur(20px)', border: '1px solid var(--card-border)' }}
           >
             <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.08em', marginBottom: 14, textTransform: 'uppercase' }}>Week at a Glance</p>
             <StreakCalendar weekHistory={weekData} todayStr={todayStr} />

@@ -17,10 +17,12 @@ import { calculateDailyScore } from '@/lib/scoring'
 import type { Breakpoint } from '@/lib/useBreakpoint'
 import { HabitIcon } from '@/lib/habitIcons'
 import { Sun, CloudSun, Sunset, Moon } from 'lucide-react'
+import ThemeToggle from './ThemeToggle'
 import WellnessRing from './WellnessRing'
 import HabitCard from './HabitCard'
 import StreakCalendar from './StreakCalendar'
 import confetti from 'canvas-confetti'
+import { useTheme } from '@/lib/ThemeContext'
 
 interface Props {
   breakpoint: Breakpoint
@@ -34,6 +36,26 @@ export default function TodayDashboard({ breakpoint }: Props) {
   const [weekHistory, setWeekHistory] = useState<Array<{ date: string; score: number }>>([])
   const [prevScore, setPrevScore] = useState(0)
   const todayStr = getTodayString()
+  const { theme } = useTheme()
+  const isLight = theme === 'light'
+
+  /* Per-category gradient fills for light theme */
+  const LIGHT_FILLS: Record<string, string> = {
+    hydration:    'linear-gradient(90deg,#2ED7C6,#6C7CFF)',
+    sleep:        'linear-gradient(90deg,#6C7CFF,#A56BFF)',
+    activity:     'linear-gradient(90deg,#FF9B4A,#FF6B6B)',
+    meals:        'linear-gradient(90deg,#58D68D,#2ED7C6)',
+    screenbreak:  'linear-gradient(90deg,#F6D94C,#FFB84D)',
+    stressrelief: 'linear-gradient(90deg,#A56BFF,#FF6FAE)',
+  }
+  const LIGHT_COLORS: Record<string, string> = {
+    hydration:    '#2ED7C6',
+    sleep:        '#6C7CFF',
+    activity:     '#FF9B4A',
+    meals:        '#58D68D',
+    screenbreak:  '#D4A800',
+    stressrelief: '#A56BFF',
+  }
 
   useEffect(() => {
     const t = getTargets()
@@ -53,7 +75,9 @@ export default function TodayDashboard({ breakpoint }: Props) {
 
   useEffect(() => {
     if (score === 100 && prevScore < 100) {
-      confetti({ particleCount: 120, spread: 80, origin: { y: 0.4 }, colors: ['#E4F05A', '#67D6C5', '#FF9A1F', '#7ED957', '#FFC94A'] })
+      confetti({ particleCount: 120, spread: 80, origin: { y: 0.4 }, colors: isLight
+        ? ['#F6D94C', '#2ED7C6', '#FF9B4A', '#58D68D', '#6C7CFF', '#FF6FAE']
+        : ['#E4F05A', '#67D6C5', '#FF9A1F', '#7ED957', '#FFC94A'] })
     }
     setPrevScore(score)
   }, [score, prevScore])
@@ -102,20 +126,23 @@ export default function TodayDashboard({ breakpoint }: Props) {
         const val = (todayData.completions as Record<string, number>)[habit.id] ?? 0
         const tgt = targets[habit.id]
         const pct = Math.min((val / tgt) * 100, 100)
+        const displayColor  = isLight ? (LIGHT_COLORS[habit.id] ?? habit.color) : habit.color
+        const displayFill   = isLight ? (LIGHT_FILLS[habit.id]  ?? habit.color) : habit.color
+        const displayGlow   = isLight ? `${displayColor}55` : habit.glowColor
         return (
           <div key={habit.id} style={{ marginBottom: 8 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: 'var(--text-secondary)', fontWeight: 500 }}>
-                <HabitIcon habitId={habit.id} color={habit.color} size={12} strokeWidth={2.5} />
+                <HabitIcon habitId={habit.id} color={displayColor} size={12} strokeWidth={2.5} />
                 {habit.label}
               </span>
-              <span style={{ fontSize: 11, color: habit.color, fontWeight: 700 }}>{val}/{tgt}</span>
+              <span style={{ fontSize: 11, color: displayColor, fontWeight: 700 }}>{val}/{tgt}</span>
             </div>
-            <div style={{ height: 4, borderRadius: 99, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+            <div style={{ height: 4, borderRadius: 99, background: 'var(--track-bg)', overflow: 'hidden' }}>
               <motion.div
                 animate={{ width: `${pct}%` }}
                 transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                style={{ height: '100%', borderRadius: 99, background: habit.color, boxShadow: `0 0 6px ${habit.glowColor}` }}
+                style={{ height: '100%', borderRadius: 99, background: displayFill, boxShadow: `0 0 6px ${displayGlow}` }}
               />
             </div>
           </div>
@@ -132,17 +159,26 @@ export default function TodayDashboard({ breakpoint }: Props) {
 
   return (
     <div style={{ paddingBottom: isDesktop ? 0 : 20 }}>
-      {/* Header */}
+      {/* Header row — heading left, theme toggle right */}
       <motion.div
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-        style={{ marginBottom: isDesktop ? 28 : 20 }}
+        style={{
+          marginBottom: isDesktop ? 28 : 20,
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          gap: 12,
+        }}
       >
-        <p style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 500 }}>{dateStr}</p>
-        <h1 style={{ fontSize: isDesktop ? 28 : 22, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.03em', marginTop: 2, display: 'flex', alignItems: 'center', gap: 10 }}>
-          {(() => { const { text, Icon } = getGreeting(); return <>{text} <Icon size={isDesktop ? 28 : 22} color="#FFC94A" /></> })()}
-        </h1>
+        <div>
+          <p style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 500 }}>{dateStr}</p>
+          <h1 style={{ fontSize: isDesktop ? 28 : 22, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.03em', marginTop: 2, display: 'flex', alignItems: 'center', gap: 10 }}>
+            {(() => { const { text, Icon } = getGreeting(); return <>{text} <Icon size={isDesktop ? 28 : 22} color="#FFC94A" /></> })()}
+          </h1>
+        </div>
+        <ThemeToggle />
       </motion.div>
 
       {isDesktop ? (
@@ -158,15 +194,14 @@ export default function TodayDashboard({ breakpoint }: Props) {
               style={{
                 padding: '12px',
                 borderRadius: 24,
-                background: 'rgba(23,23,23,0.8)',
+                background: 'var(--card-bg)',
                 backdropFilter: 'blur(24px)',
-                border: '1px solid rgba(255,255,255,0.07)',
-                boxShadow: '0 8px 40px rgba(0,0,0,0.3)',
+                border: '1px solid var(--card-border)',
+                boxShadow: 'var(--card-shadow)',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 gap: 16,
-                /* critical: lets the drop-shadow/glow bleed outside the rounded card */
                 overflow: 'visible',
               }}
             >
@@ -181,10 +216,10 @@ export default function TodayDashboard({ breakpoint }: Props) {
               style={{
                 padding: 24,
                 borderRadius: 24,
-                background: 'rgba(23,23,23,0.8)',
+                background: 'var(--card-bg)',
                 backdropFilter: 'blur(24px)',
-                border: '1px solid rgba(255,255,255,0.07)',
-                boxShadow: '0 8px 40px rgba(0,0,0,0.3)',
+                border: '1px solid var(--card-border)',
+                boxShadow: 'var(--card-shadow)',
               }}
             >
               <MiniProgress />
@@ -199,9 +234,9 @@ export default function TodayDashboard({ breakpoint }: Props) {
             style={{
               padding: '18px 24px',
               borderRadius: 20,
-              background: 'rgba(23,23,23,0.8)',
+              background: 'var(--card-bg)',
               backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255,255,255,0.06)',
+              border: '1px solid var(--card-border)',
               marginBottom: 24,
             }}
           >
@@ -224,12 +259,11 @@ export default function TodayDashboard({ breakpoint }: Props) {
               gap: isTablet ? 28 : 20,
               padding: isTablet ? '28px' : '24px',
               borderRadius: 24,
-              background: 'rgba(23,23,23,0.8)',
+              background: 'var(--card-bg)',
               backdropFilter: 'blur(24px)',
-              border: '1px solid rgba(255,255,255,0.07)',
+              border: '1px solid var(--card-border)',
               marginBottom: 16,
-              boxShadow: '0 8px 40px rgba(0,0,0,0.3)',
-              /* glow must bleed outside the card corners */
+              boxShadow: 'var(--card-shadow)',
               overflow: 'visible',
             }}
           >
@@ -244,9 +278,9 @@ export default function TodayDashboard({ breakpoint }: Props) {
             style={{
               padding: '16px',
               borderRadius: 20,
-              background: 'rgba(23,23,23,0.8)',
+              background: 'var(--card-bg)',
               backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255,255,255,0.06)',
+              border: '1px solid var(--card-border)',
               marginBottom: 20,
             }}
           >

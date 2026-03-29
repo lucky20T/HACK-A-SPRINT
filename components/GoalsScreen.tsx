@@ -5,7 +5,9 @@ import { useEffect, useState } from 'react'
 import { HABIT_DEFINITIONS, getTargets, saveTargets, Targets } from '@/lib/storage'
 import { HabitIcon } from '@/lib/habitIcons'
 import { Target } from 'lucide-react'
+import ThemeToggle from './ThemeToggle'
 import type { Breakpoint } from '@/lib/useBreakpoint'
+import { useTheme } from '@/lib/ThemeContext'
 
 interface Props { breakpoint: Breakpoint }
 
@@ -16,6 +18,8 @@ export default function GoalsScreen({ breakpoint }: Props) {
   const [savedPulse, setSavedPulse] = useState<string | null>(null)
   const isDesktop = breakpoint === 'desktop'
   const isTablet  = breakpoint === 'tablet'
+  const { theme } = useTheme()
+  const isLight = theme === 'light'
 
   useEffect(() => { setTargets(getTargets()) }, [])
 
@@ -34,20 +38,29 @@ export default function GoalsScreen({ breakpoint }: Props) {
 
   return (
     <div style={{ paddingBottom: isDesktop ? 0 : 20 }}>
-      {/* Header */}
+      {/* Header row */}
       <motion.div
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-        style={{ marginBottom: isDesktop ? 28 : 20 }}
+        style={{
+          marginBottom: isDesktop ? 28 : 20,
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          gap: 12,
+        }}
       >
-        <p style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 500 }}>Customize</p>
-        <h1 style={{ fontSize: isDesktop ? 28 : 22, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.03em', marginTop: 2, display: 'flex', alignItems: 'center', gap: 10 }}>
-          Daily Targets <Target size={isDesktop ? 26 : 22} color="#E4F05A" />
-        </h1>
-        <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 6, lineHeight: 1.5 }}>
-          Set realistic goals for each habit. Changes save automatically.
-        </p>
+        <div>
+          <p style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 500 }}>Customize</p>
+          <h1 style={{ fontSize: isDesktop ? 28 : 22, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.03em', marginTop: 2, display: 'flex', alignItems: 'center', gap: 10 }}>
+            Daily Targets <Target size={isDesktop ? 26 : 22} color={isLight ? '#6C7CFF' : '#E4F05A'} />
+          </h1>
+          <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 6, lineHeight: 1.5 }}>
+            Set realistic goals for each habit. Changes save automatically.
+          </p>
+        </div>
+        <ThemeToggle />
       </motion.div>
 
       <div style={{ display: 'grid', gridTemplateColumns: gridCols, gap: isDesktop ? 18 : 14 }}>
@@ -67,10 +80,10 @@ export default function GoalsScreen({ breakpoint }: Props) {
               style={{
                 padding: isDesktop ? '20px' : '18px',
                 borderRadius: 20,
-                background: 'rgba(23,23,23,0.85)',
+                background: 'var(--card-bg)',
                 backdropFilter: 'blur(20px)',
-                border: isSaved ? `1px solid ${habit.color}66` : '1px solid rgba(255,255,255,0.06)',
-                boxShadow: isSaved ? `0 0 24px ${habit.glowColor}, 0 4px 20px rgba(0,0,0,0.3)` : '0 4px 20px rgba(0,0,0,0.3)',
+                border: isSaved ? `1px solid ${habit.color}66` : '1px solid var(--card-border)',
+                boxShadow: isSaved ? `0 0 24px ${habit.glowColor}, var(--card-shadow)` : 'var(--card-shadow)',
                 transition: 'border-color 300ms, box-shadow 300ms',
               }}
             >
@@ -109,8 +122,8 @@ export default function GoalsScreen({ breakpoint }: Props) {
                   onClick={() => handleChange(habit.id, current - habit.step)}
                   disabled={current <= habit.step}
                   style={{
-                    width: 40, height: 40, borderRadius: '50%', background: 'rgba(255,255,255,0.06)',
-                    border: '1px solid rgba(255,255,255,0.1)', color: current <= habit.step ? 'var(--text-muted)' : 'var(--text-secondary)',
+                    width: 40, height: 40, borderRadius: '50%', background: 'var(--input-bg)',
+                    border: '1px solid var(--input-border)', color: current <= habit.step ? 'var(--text-muted)' : 'var(--text-secondary)',
                     fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center',
                     cursor: current <= habit.step ? 'not-allowed' : 'pointer', transition: 'all 150ms', flexShrink: 0,
                   }}
@@ -134,8 +147,9 @@ export default function GoalsScreen({ breakpoint }: Props) {
                   disabled={current >= habit.max}
                   style={{
                     width: 40, height: 40, borderRadius: '50%',
-                    background: current >= habit.max ? 'rgba(255,255,255,0.04)' : habit.color,
-                    border: 'none', color: current >= habit.max ? 'var(--text-muted)' : '#0B0B0B',
+                    background: current >= habit.max ? 'var(--input-bg)' : habit.color,
+                    border: current >= habit.max ? '1px solid var(--input-border)' : 'none',
+                    color: current >= habit.max ? 'var(--text-muted)' : isLight ? '#FFFFFF' : '#0B0B0B',
                     fontSize: 20, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center',
                     cursor: current >= habit.max ? 'not-allowed' : 'pointer', transition: 'all 150ms',
                     boxShadow: current >= habit.max ? 'none' : `0 0 16px ${habit.glowColor}`, flexShrink: 0,
@@ -145,7 +159,7 @@ export default function GoalsScreen({ breakpoint }: Props) {
               </div>
 
               {/* Track */}
-              <div style={{ height: 5, borderRadius: 99, background: 'rgba(255,255,255,0.05)', overflow: 'hidden' }}>
+              <div style={{ height: 5, borderRadius: 99, background: 'var(--track-bg)', overflow: 'hidden' }}>
                 <motion.div
                   animate={{ width: `${pct}%` }}
                   transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}

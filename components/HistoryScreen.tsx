@@ -13,7 +13,9 @@ import {
 import { calculateDailyScore, getScoreColor } from '@/lib/scoring'
 import { HabitIcon } from '@/lib/habitIcons'
 import { CalendarDays } from 'lucide-react'
+import ThemeToggle from './ThemeToggle'
 import type { Breakpoint } from '@/lib/useBreakpoint'
+import { useTheme } from '@/lib/ThemeContext'
 
 interface Props { breakpoint: Breakpoint }
 
@@ -25,6 +27,8 @@ export default function HistoryScreen({ breakpoint }: Props) {
   const [expandedDate, setExpandedDate] = useState<string | null>(null)
   const isDesktop = breakpoint === 'desktop'
   const isTablet  = breakpoint === 'tablet'
+  const { theme } = useTheme()
+  const isLight = theme === 'light'
 
   useEffect(() => {
     const t = getTargets()
@@ -52,10 +56,14 @@ export default function HistoryScreen({ breakpoint }: Props) {
         onClick={() => setExpandedDate(isExpanded ? null : day.date)}
         style={{
           borderRadius: 20,
-          background: 'rgba(23,23,23,0.85)',
+          background: 'var(--card-bg)',
           backdropFilter: 'blur(20px)',
-          border: isToday ? '1px solid rgba(228,240,90,0.3)' : '1px solid rgba(255,255,255,0.06)',
-          boxShadow: isToday ? '0 0 20px rgba(228,240,90,0.1), 0 4px 20px rgba(0,0,0,0.3)' : '0 4px 20px rgba(0,0,0,0.3)',
+          border: isToday
+            ? isLight ? '1px solid rgba(108,124,255,0.30)' : '1px solid rgba(228,240,90,0.3)'
+            : '1px solid var(--card-border)',
+          boxShadow: isToday
+            ? isLight ? '0 0 18px rgba(108,124,255,0.12), var(--card-shadow)' : '0 0 20px rgba(228,240,90,0.1), 0 4px 20px rgba(0,0,0,0.3)'
+            : 'var(--card-shadow)',
           overflow: 'hidden',
           cursor: 'pointer',
           transition: 'border-color 300ms',
@@ -76,7 +84,9 @@ export default function HistoryScreen({ breakpoint }: Props) {
               {formatDate(day.date)}
               {isToday && (
                 <span style={{
-                  marginLeft: 8, fontSize: 10, background: 'var(--neon-lime)', color: '#0B0B0B',
+                  marginLeft: 8, fontSize: 10,
+                  background: isLight ? 'var(--neon-lime)' : 'var(--neon-lime)',
+                  color: isLight ? '#152033' : '#0B0B0B',
                   fontWeight: 700, padding: '2px 7px', borderRadius: 99, verticalAlign: 'middle',
                 }}>TODAY</span>
               )}
@@ -116,7 +126,7 @@ export default function HistoryScreen({ breakpoint }: Props) {
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
               style={{ overflow: 'hidden' }}
             >
-              <div style={{ padding: '0 18px 16px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 14 }}>
+              <div style={{ padding: '0 18px 16px', borderTop: `1px solid var(--divider)`, paddingTop: 14 }}>
                 {/* Desktop: 2-col habit rows */}
                 <div style={{ display: 'grid', gridTemplateColumns: isDesktop ? '1fr 1fr' : '1fr', gap: '6px 20px' }}>
                   {HABIT_DEFINITIONS.map((habit) => {
@@ -135,7 +145,7 @@ export default function HistoryScreen({ breakpoint }: Props) {
                             {val} / {tgt} {habit.unit}
                           </span>
                         </div>
-                        <div style={{ height: 4, borderRadius: 99, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+                        <div style={{ height: 4, borderRadius: 99, background: 'var(--track-bg)', overflow: 'hidden' }}>
                           <div style={{ height: '100%', width: `${pct}%`, borderRadius: 99, background: done ? habit.color : `${habit.color}55`, boxShadow: done ? `0 0 6px ${habit.glowColor}` : 'none', transition: 'width 600ms var(--ease-premium)' }} />
                         </div>
                       </div>
@@ -152,17 +162,26 @@ export default function HistoryScreen({ breakpoint }: Props) {
 
   return (
     <div style={{ paddingBottom: isDesktop ? 0 : 20 }}>
-      {/* Header */}
+      {/* Header row */}
       <motion.div
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-        style={{ marginBottom: isDesktop ? 28 : 20 }}
+        style={{
+          marginBottom: isDesktop ? 28 : 20,
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          gap: 12,
+        }}
       >
-        <p style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 500 }}>Past 7 Days</p>
-        <h1 style={{ fontSize: isDesktop ? 28 : 22, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.03em', marginTop: 2, display: 'flex', alignItems: 'center', gap: 10 }}>
-          History <CalendarDays size={isDesktop ? 26 : 22} color="#E4F05A" />
-        </h1>
+        <div>
+          <p style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 500 }}>Past 7 Days</p>
+          <h1 style={{ fontSize: isDesktop ? 28 : 22, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.03em', marginTop: 2, display: 'flex', alignItems: 'center', gap: 10 }}>
+            History <CalendarDays size={isDesktop ? 26 : 22} color={isLight ? '#6C7CFF' : '#E4F05A'} />
+          </h1>
+        </div>
+        <ThemeToggle />
       </motion.div>
 
       {isDesktop ? (

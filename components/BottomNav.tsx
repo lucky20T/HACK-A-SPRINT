@@ -75,17 +75,18 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-around',
-          background: 'rgba(18,18,18,0.96)',
+          background: 'var(--glass-bg-nav)',
           backdropFilter: 'blur(28px)',
           WebkitBackdropFilter: 'blur(28px)',
-          border: '1px solid rgba(255,255,255,0.08)',
+          border: '1px solid var(--glass-border)',
           borderBottom: 'none',
           borderRadius: '28px 28px 0 0',
-          boxShadow: '0 -8px 40px rgba(0,0,0,0.55), 0 -1px 0 rgba(255,255,255,0.06)',
+          boxShadow: '0 -8px 40px var(--glass-shadow), 0 -1px 0 var(--glass-border)',
           paddingTop: 10,
           paddingBottom: 'max(18px, env(safe-area-inset-bottom))',
           paddingLeft: 8,
           paddingRight: 8,
+          transition: 'background 350ms cubic-bezier(0.22,1,0.36,1), border-color 350ms cubic-bezier(0.22,1,0.36,1)',
         }}
       >
         {TABS.map((tab) => {
@@ -107,7 +108,7 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
                 border: 'none',
                 background: 'transparent',
                 cursor: 'pointer',
-                color: isActive ? '#0B0B0B' : 'var(--text-muted)',
+                color: isActive ? 'var(--nav-active-text)' : 'var(--nav-inactive-text)',
                 flex: 1,
                 transition: 'color 200ms',
               }}
@@ -120,8 +121,8 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
                     position: 'absolute',
                     inset: 0,
                     borderRadius: 20,
-                    background: 'var(--neon-lime)',
-                    boxShadow: '0 0 16px rgba(228,240,90,0.5)',
+                    background: 'var(--nav-active-bg)',
+                    boxShadow: '0 0 16px var(--nav-active-glow)',
                   }}
                   transition={{ type: 'spring', stiffness: 500, damping: 38, mass: 0.8 }}
                 />
@@ -130,10 +131,9 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
               <motion.span
                 animate={{
                   scale: isActive ? 1.1 : 1,
-                  color: isActive ? '#0B0B0B' : '#6F6F6F',
                 }}
                 transition={{ duration: 0.2 }}
-                style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center' }}
+                style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', color: isActive ? 'var(--nav-active-text)' : 'var(--nav-inactive-text)' }}
               >
                 <TabIcon id={tab.id} />
               </motion.span>
@@ -145,7 +145,7 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
                   fontSize: 10,
                   fontWeight: isActive ? 700 : 500,
                   letterSpacing: '0.02em',
-                  color: isActive ? '#0B0B0B' : 'var(--text-muted)',
+                  color: isActive ? 'var(--nav-active-text)' : 'var(--nav-inactive-text)',
                   transition: 'color 200ms',
                 }}
               >

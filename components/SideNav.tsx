@@ -61,15 +61,16 @@ export default function SideNav({ activeTab, onTabChange }: SideNavProps) {
         display: 'flex',
         flexDirection: 'column',
         padding: '24px 16px',
-        background: 'rgba(17,17,17,0.85)',
+        background: 'var(--glass-bg-nav)',
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
-        borderRight: '1px solid rgba(255,255,255,0.06)',
+        borderRight: '1px solid var(--glass-border)',
         height: '100vh',
         position: 'sticky',
         top: 0,
         gap: 6,
         zIndex: 50,
+        transition: 'background 350ms cubic-bezier(0.22,1,0.36,1)',
       }}
     >
       {/* Logo / Brand */}
@@ -83,7 +84,7 @@ export default function SideNav({ activeTab, onTabChange }: SideNavProps) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 0 16px rgba(228,240,90,0.4)',
+            boxShadow: '0 0 16px var(--nav-active-glow)',
           }}>
             <Zap size={18} color="#0B0B0B" fill="#0B0B0B" />
           </div>
@@ -126,16 +127,16 @@ export default function SideNav({ activeTab, onTabChange }: SideNavProps) {
                     position: 'absolute',
                     inset: 0,
                     borderRadius: 14,
-                    background: 'rgba(228,240,90,0.1)',
-                    border: '1px solid rgba(228,240,90,0.25)',
-                    boxShadow: '0 0 20px rgba(228,240,90,0.08)',
+                    background: 'var(--nav-active-bg)',
+                    opacity: 0.18,
+                    boxShadow: '0 0 20px var(--nav-active-glow)',
                   }}
                   transition={{ type: 'spring', stiffness: 350, damping: 30 }}
                 />
               )}
 
               <motion.span
-                animate={{ color: isActive ? '#E4F05A' : '#6F6F6F' }}
+                animate={{ color: isActive ? 'var(--neon-lime)' : 'var(--nav-inactive-text)' }}
                 transition={{ duration: 0.2 }}
                 style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center' }}
               >
@@ -164,7 +165,7 @@ export default function SideNav({ activeTab, onTabChange }: SideNavProps) {
                   height: 6,
                   borderRadius: '50%',
                   background: 'var(--neon-lime)',
-                  boxShadow: '0 0 8px var(--neon-lime)',
+                  boxShadow: '0 0 8px var(--nav-active-glow)',
                 }} />
               )}
             </button>
@@ -176,8 +177,8 @@ export default function SideNav({ activeTab, onTabChange }: SideNavProps) {
       <div style={{
         padding: '16px 12px',
         borderRadius: 14,
-        background: 'rgba(228,240,90,0.05)',
-        border: '1px solid rgba(228,240,90,0.1)',
+        background: 'var(--input-bg)',
+        border: '1px solid var(--card-border)',
       }}>
         <p style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.5, display: 'flex', alignItems: 'flex-start', gap: 6 }}>
           <Lock size={12} color="#6F6F6F" style={{ flexShrink: 0, marginTop: 1 }} />
