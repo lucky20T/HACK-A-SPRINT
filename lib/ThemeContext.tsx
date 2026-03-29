@@ -35,7 +35,22 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     } catch {}
   }, [theme])
 
-  const toggle = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
+  const toggle = () => {
+    const html = document.documentElement
+
+    // 1. Add the class — triggers the CSS ::before overlay fade-in
+    html.classList.add('theme-switching')
+
+    // 2. After a short delay (let the overlay reach peak opacity), flip the theme
+    setTimeout(() => {
+      setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
+
+      // 3. Remove the class so the overlay fades back out
+      setTimeout(() => {
+        html.classList.remove('theme-switching')
+      }, 300)
+    }, 120)
+  }
 
   return (
     <ThemeContext.Provider value={{ theme, toggle }}>

@@ -173,6 +173,51 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+/* ─── Global Theme Transition ───────────────────────────────────────
+   Transition every element's colour-surface properties so that when
+   the data-theme attribute swaps, nothing snaps abruptly.
+   We keep it cheap: only properties that CSS variables drive.
+──────────────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  transition:
+    background        500ms var(--ease-premium),
+    background-color  500ms var(--ease-premium),
+    border-color      500ms var(--ease-premium),
+    color             400ms var(--ease-premium),
+    box-shadow        500ms var(--ease-premium),
+    opacity           400ms var(--ease-premium);
+}
+
+/* Opt-out for elements where transition would look wrong */
+.no-theme-transition,
+.no-theme-transition * {
+  transition: none !important;
+}
+
+/* ─── Full-page crossfade overlay ─────────────────────────────────
+   A ::before pseudo on <html> is triggered by JS adding
+   .theme-switching. It briefly shows a semi-transparent flash
+   that peaks at ~30% opacity, masking the mid-point of variable
+   interpolation for a cinematic feel.
+──────────────────────────────────────────────────────────────────── */
+html::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 99999;
+  background: var(--bg-base);
+  opacity: 0;
+  transition: opacity 250ms var(--ease-premium);
+}
+
+html.theme-switching::before {
+  opacity: 0.35;
+  transition: opacity 120ms ease-in;
+}
+
 body {
   font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
   background: var(--bg-base);
@@ -181,7 +226,6 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background 350ms var(--ease-premium), color 350ms var(--ease-premium);
 }
 
 /* ─── Scrollbar ────────────────────────────────────────────────────── */

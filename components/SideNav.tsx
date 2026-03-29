@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { TabId } from './BottomNav'
 import { Zap, Lock } from 'lucide-react'
 
+
 interface SideNavProps {
   activeTab: TabId
   onTabChange: (tab: TabId) => void
@@ -76,21 +77,35 @@ export default function SideNav({ activeTab, onTabChange }: SideNavProps) {
       {/* Logo / Brand */}
       <div style={{ paddingLeft: 12, marginBottom: 32 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{
-            width: 36,
-            height: 36,
-            borderRadius: 10,
-            background: 'var(--neon-lime)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 0 16px var(--nav-active-glow)',
-          }}>
-            <Zap size={18} color="#0B0B0B" fill="#0B0B0B" />
-          </div>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="120 70 260 300"
+            width="30%"
+            height="30%"
+            preserveAspectRatio="xMidYMid slice"
+          >
+            <g transform="translate(0,40)">
+
+              <path fill="#FF3E5D" d="M351.69,143.424c-0.955-47.544-58.974-82.589-104.608-42.679
+    c-45.607-39.883-103.652-4.891-104.607,42.679
+    c-0.246,12.114,3.252,23.912,10.212,34.79h13.692h1.499h29.943l8.021-13.367
+    c2.323-3.874,7.968-4.023,10.431-0.14l16.935,26.603l24.692-52.093
+    c2.147-4.558,8.564-4.69,10.939-0.289l21.16,39.287h36.289h2.489
+    l12.692,0.018C348.438,167.354,351.936,155.547,351.69,143.424z"/>
+
+              <path fill="#FF97AB" d="M286.335,190.477c-2.262,0-4.33-1.236-5.4-3.217
+    l-17.145-31.836l-24.245,51.173c-2.069,4.356-8.134,4.725-10.72,0.666
+    l-17.566-27.602l-4.707,7.845c-1.113,1.841-3.112,2.971-5.259,2.971
+    l-38.899-0.006c0.368,0.377,1.067,1.111,1.444,1.488
+    c0.035,0.035,29.066,28.909,78.925,78.486
+    c2.384,2.384,6.25,2.384,8.643,0l78.925-78.486
+    c0.491-0.491,0.973-0.99,1.455-1.481H286.335z"/>
+
+            </g>
+          </svg>
           <div>
-            <p style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.03em', lineHeight: 1.1 }}>Vitality</p>
-            <p style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 500, marginTop: 1 }}>Health Tracker</p>
+            <p style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.03em', lineHeight: 1.1 }}>Vitalizer</p>
+            <p style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 500, marginTop: 1 }}>Health Tracker</p>
           </div>
         </div>
       </div>

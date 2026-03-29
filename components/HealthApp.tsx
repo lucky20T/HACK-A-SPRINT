@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import AnimatedBackground from './AnimatedBackground'
 import BottomNav, { TabId } from './BottomNav'
@@ -28,6 +28,18 @@ export default function HealthApp() {
   const isDesktop = bp === 'desktop'
   const isTablet  = bp === 'tablet'
 
+  /* Refs for each layout's scrollable container */
+  const desktopMainRef  = useRef<HTMLElement>(null)
+  const mobileScrollRef = useRef<HTMLDivElement>(null)
+
+  /* Scroll to top on every tab change */
+  useEffect(() => {
+    const el = isDesktop ? desktopMainRef.current : mobileScrollRef.current
+    if (el) {
+      el.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }, [activeTab, isDesktop])
+
   const renderScreen = () => {
     switch (activeTab) {
       case 'today':    return <TodayDashboard   key="today"    breakpoint={bp} />
@@ -47,6 +59,7 @@ export default function HealthApp() {
           <SideNav activeTab={activeTab} onTabChange={setActiveTab} />
 
           <main
+            ref={desktopMainRef}
             style={{
               flex: 1,
               overflow: 'auto',
@@ -77,6 +90,7 @@ export default function HealthApp() {
         }}>
           {/* Scrollable content — ends above the nav */}
           <div
+            ref={mobileScrollRef}
             style={{
               flex: 1,
               overflowY: 'auto',
