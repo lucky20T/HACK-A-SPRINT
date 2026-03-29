@@ -10,7 +10,10 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Vitality — Personal Health Habit Tracker',
+  icons: {
+    icon: 'app/custom-logo.png',
+  },
+  title: 'Vitalizer — Personal Health Habit Tracker',
   description: 'Track your daily wellness habits across hydration, sleep, activity, meals, screen breaks, and stress relief. Get your daily wellness score and weekly insights.',
   keywords: ['health tracker', 'habit tracker', 'wellness', 'fitness', 'daily habits'],
   authors: [{ name: 'Vitality App' }],
