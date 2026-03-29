@@ -118,7 +118,7 @@ export default function TodayDashboard({ breakpoint }: Props) {
 
   /* ─── Mini progress bars shown beside the ring ──────────────── */
   const MiniProgress = () => (
-    <div style={{ flex: 1 }}>
+    <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
       <p style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.08em', marginBottom: 10, textTransform: 'uppercase' }}>
         Daily Progress
       </p>
@@ -131,12 +131,12 @@ export default function TodayDashboard({ breakpoint }: Props) {
         const displayGlow   = isLight ? `${displayColor}55` : habit.glowColor
         return (
           <div key={habit.id} style={{ marginBottom: 8 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: 'var(--text-secondary)', fontWeight: 500 }}>
-                <HabitIcon habitId={habit.id} color={displayColor} size={12} strokeWidth={2.5} />
-                {habit.label}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3, gap: 4, minWidth: 0 }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: 'var(--text-secondary)', fontWeight: 500, minWidth: 0, overflow: 'hidden' }}>
+                <span style={{ flexShrink: 0 }}><HabitIcon habitId={habit.id} color={displayColor} size={12} strokeWidth={2.5} /></span>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{habit.label}</span>
               </span>
-              <span style={{ fontSize: 11, color: displayColor, fontWeight: 700 }}>{val}/{tgt}</span>
+              <span style={{ fontSize: 11, color: displayColor, fontWeight: 700, flexShrink: 0, marginLeft: 2 }}>{val}/{tgt}</span>
             </div>
             <div style={{ height: 4, borderRadius: 99, background: 'var(--track-bg)', overflow: 'hidden' }}>
               <motion.div
@@ -155,7 +155,7 @@ export default function TodayDashboard({ breakpoint }: Props) {
   const habitGridCols = isDesktop ? '1fr 1fr 1fr' : isTablet ? '1fr 1fr 1fr' : '1fr 1fr'
 
   /* ─── Ring size: bigger on desktop ──────────────────────────── */
-  const ringSize = isDesktop ? 200 : isTablet ? 180 : 160
+  const ringSize = isDesktop ? 200 : isTablet ? 170 : 140
 
   return (
     <div style={{ paddingBottom: isDesktop ? 0 : 20 }}>
@@ -256,18 +256,21 @@ export default function TodayDashboard({ breakpoint }: Props) {
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: isTablet ? 28 : 20,
-              padding: isTablet ? '28px' : '24px',
+              gap: isTablet ? 20 : 12,
+              padding: isTablet ? '20px 24px' : '16px',
               borderRadius: 24,
               background: 'var(--card-bg)',
               backdropFilter: 'blur(24px)',
               border: '1px solid var(--card-border)',
               marginBottom: 16,
               boxShadow: 'var(--card-shadow)',
-              overflow: 'visible',
+              overflow: 'hidden',
+              minWidth: 0,
             }}
           >
-            <WellnessRing score={score} size={ringSize} />
+            <div style={{ flexShrink: 0 }}>
+              <WellnessRing score={score} size={ringSize} />
+            </div>
             <MiniProgress />
           </motion.div>
 
